@@ -10,7 +10,6 @@
 import java.sql.*;
 import java.lang.*;
 import java.util.*;
-import java.io.*;
 
 public class Admin
 {
@@ -22,28 +21,24 @@ public class Admin
         int ch;
         Boolean AdminLoginResult = false;
 
-        
+        System.out.println();
+        System.out.println();
+        System.out.println("Welcome To Online Quiz's Admin Portal");
+        System.out.println("-------------------------------------");
+        System.out.println();
         try
         {
             //Class.forName("com.mysql.jdbc.Driver"); This is not requirded, As this is preloaded in new versions of Mysql Driver
             //Variables assigned with credetials for connection to Database ("ONLINE_QUIZ")
-            String url = "jdbc:mysql://127.0.0.1/online_quiz?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost/online_quiz?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		    String user = "root";
 		    String pass = "";
             //Trying to make connection with database
             con = DriverManager.getConnection(url,user,pass);
             stmt = con.createStatement();
-			
-			System.out.println();
-			System.out.println();
-			System.out.println("Welcome To Online Quiz's Admin Portal");
-			System.out.println("-------------------------------------");
-			System.out.println();
-			
-            Admin ad = new Admin();
+            AdminLogin ad = new AdminLogin();
             AdminLoginResult = ad.login(stmt);
-			
-			
+            
 
             for(;;)
             {
@@ -68,21 +63,23 @@ public class Admin
                     System.out.println("3 : Create a new Admin User Account \t 4 : Exit");
                     //System.out.println("5 : Exit");
                     System.out.println();
-                     System.out.print("Choice : ");ch = in.nextInt();
-                    System.out.println();
-                    System.out.println("-------------------------------------------------------------------------------");
+                    ch = in.nextInt();
+                    System.out.println("--------------------------------------");
                     switch (ch) 
                     {
                         case 1 : 
-                                ad.Insert(stmt); 
+                                AdminQuestionInsertion adi = new AdminQuestionInsertion();
+                                adi.Insert(stmt); 
                         break;
 
                         case 2 :
-                                ad.view(stmt);
+                                ViewAllQuestions vlq = new ViewAllQuestions();
+                                vlq.view(stmt);
                         break;
 
                         case 3 :
-                                ad.AdminCreate(stmt);
+                                CreateNewAdmin cna = new CreateNewAdmin();
+                                cna.AdminCreate(stmt);
                         break;
 
                         case 4 :
@@ -110,8 +107,11 @@ public class Admin
         }
 
     }
+}
 
-    public Boolean login(Statement stmt) throws IOException, InterruptedException
+class AdminLogin
+{
+    public Boolean login(Statement stmt)
     {
         Boolean val = false;
         ResultSet rst = null;
@@ -137,20 +137,9 @@ public class Admin
                     String password=in.nextLine();
                     if(password.equals(rst.getString(2)))
                     {
-						new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                         System.out.println();
-						System.out.print("-------------------------------");
-						for(int i = 0; i < username.length(); i++)
-						{
-							System.out.print("-");
-						}
-						System.out.println();
                         System.out.println("Succefully Logged into Admin : "+username); 
-                        System.out.print("-------------------------------");
-						for(int i = 0; i < username.length(); i++)
-						{
-							System.out.print("-");
-						}
+                        System.out.println("-----------------------------------------");
                         System.out.println();
                         return true;
                     }
@@ -169,7 +158,38 @@ public class Admin
                 return false;
             }
 
-        }
+            /*if(val)
+            {
+                System.out.println();
+                System.out.println("Enter the Password for username : "+username);
+                String password=in.nextLine();
+                rst = stmt.executeQuery("select PASSWORD from Admins");
+                while(rst.next())
+		        {
+                        if(password.equals(rst.getString(1)))
+                        {
+                            System.out.println();
+                            System.out.println("Succefully Logged into Admin : "+username); 
+                            System.out.println("-----------------------------------------");
+                            System.out.println();
+                            return true;
+                        }
+                        else
+                        {
+                            System.out.println();
+                            System.out.println("Retry");
+                            System.out.println();
+                            return false;
+                        }
+                }
+            }
+            else
+            {
+                return false;
+            }*/
+            
+        } 
+    
         catch (SQLException ex)
         {
             // handle any errors
@@ -179,7 +199,10 @@ public class Admin
         }
         return false;
     }
+}
 
+class AdminQuestionInsertion
+{
     public void Insert(Statement stmt)
     {
         String ques;
@@ -250,7 +273,52 @@ public class Admin
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
+}
 
+
+/*class ViewAllQuestions
+{
+    public void view(Statement stmt)
+    {
+        ResultSet rst = null;
+        ResultSet rs1 = null;
+        ResultSet rs = null;
+        int counter=0;
+        try
+        {
+            rst = stmt.executeQuery("SELECT COUNT(Q_ID) FROM questions");
+            while(rst.next())
+            {
+                counter = Integer.parseInt(rst.getString(1));
+            }
+            System.out.println(counter);
+
+            for(int i = 1; i <= counter ; i++)
+            {
+                rs = stmt.executeQuery("SELECT * FROM QUESTIONS WHERE Q_ID="+i+"");
+                rs1 = stmt.executeQuery("SELECT ANSWERS FROM ANSWERS WHERE Q_ID="+i+"");
+                while (rs.next())
+                {
+                    System.out.println(rs.getString(1)+" : "+rs.getString(2));
+                }
+                while (rs1.next())
+                {
+                    System.out.println(rs.getString(1)+" ");
+                }   
+            }
+        }
+        catch (SQLException ex)
+        {
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+    }
+}*/
+
+class ViewAllQuestions
+{
     public void view(Statement stmt)
     {
         ResultSet rst = null;
@@ -263,8 +331,6 @@ public class Admin
                 System.out.println(rst.getString(1)+" : "+rst.getString(2));
             }
             System.out.println();
-            System.out.println("--------------------------------------------------------------------------------------");
-            System.out.println();
         }
         catch (SQLException ex)
         {
@@ -274,7 +340,10 @@ public class Admin
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
+}
 
+class CreateNewAdmin
+{
     public void AdminCreate(Statement stmt)
     {
         ResultSet rs = null;
@@ -316,5 +385,4 @@ public class Admin
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
-
 }
