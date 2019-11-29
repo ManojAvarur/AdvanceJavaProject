@@ -10,7 +10,6 @@
 import java.sql.*;
 import java.lang.*;
 import java.util.*;
-import java.io.*;
 
 public class Admin
 {
@@ -22,28 +21,24 @@ public class Admin
         int ch;
         Boolean AdminLoginResult = false;
 
-        
+        System.out.println();
+        System.out.println();
+        System.out.println("Welcome To Online Quiz's Admin Portal");
+        System.out.println("-------------------------------------");
+        System.out.println();
         try
         {
             //Class.forName("com.mysql.jdbc.Driver"); This is not requirded, As this is preloaded in new versions of Mysql Driver
             //Variables assigned with credetials for connection to Database ("ONLINE_QUIZ")
-            String url = "jdbc:mysql://127.0.0.1/quizz_test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost/online_quiz?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		    String user = "root";
 		    String pass = "";
             //Trying to make connection with database
             con = DriverManager.getConnection(url,user,pass);
             stmt = con.createStatement();
-			
-			System.out.println();
-			System.out.println();
-			System.out.println("Welcome To Online Quiz's Admin Portal");
-			System.out.println("-------------------------------------");
-			System.out.println();
-			
-            Admin ad = new Admin();
+            AdminLogin ad = new AdminLogin();
             AdminLoginResult = ad.login(stmt);
-			
-			
+            
 
             for(;;)
             {
@@ -63,52 +58,31 @@ public class Admin
                 {
                     System.out.println();
                     System.out.println();
-                    System.out.println("Enter Your Choice : ");
-                    System.out.println("--------------------");
+                    System.out.println("Enter Your Choice");
                     System.out.println("1 : Insert Question into Database \t 2 : View all the Questions in the Database");
-                    System.out.println("3 : Create a new Admin User Account \t 4 : Alter Question");
-                    System.out.println("5 : LogOut \t \t \t \t 6 : Exit");
+                    System.out.println("3 : Create a new Admin User Account \t 4 : Exit");
+                    //System.out.println("5 : Exit");
                     System.out.println();
-                     System.out.print("Choice : ");ch = in.nextInt();
-                    System.out.println();
-                    System.out.println("-------------------------------------------------------------------------------");
+                    ch = in.nextInt();
+                    System.out.println("--------------------------------------");
                     switch (ch) 
                     {
                         case 1 : 
-                                ad.Insert(stmt); 
+                                AdminQuestionInsertion adi = new AdminQuestionInsertion();
+                                adi.Insert(stmt); 
                         break;
 
                         case 2 :
-                                ad.viewQuestions(stmt);
+                                ViewAllQuestions vlq = new ViewAllQuestions();
+                                vlq.view(stmt);
                         break;
 
                         case 3 :
-                                ad.AdminCreate(stmt);
+                                CreateNewAdmin cna = new CreateNewAdmin();
+                                cna.AdminCreate(stmt);
                         break;
 
                         case 4 :
-                                ad.ALterQuestions(stmt);
-                        break;
-
-                        case 5 :
-                                System.out.println();
-                                AdminLoginResult = false;
-                                System.out.println(" Successfully Logged Out ");
-                                System.out.println("------------------------------------------------------------------------------");
-                                for(;;)
-                                {
-                                    if( AdminLoginResult == true ) 
-                                    {
-                                        break;  
-                                    }
-                                    else
-                                    {
-                                        AdminLoginResult = ad.login(stmt);
-                                    }
-                                }
-                        break;
-
-                        case 6 :
                                 System.out.println();
                                 System.out.println("Good Bye!!");
                                 System.exit(0);
@@ -133,8 +107,11 @@ public class Admin
         }
 
     }
+}
 
-    public Boolean login(Statement stmt) throws IOException, InterruptedException
+class AdminLogin
+{
+    public Boolean login(Statement stmt)
     {
         Boolean val = false;
         ResultSet rst = null;
@@ -160,20 +137,9 @@ public class Admin
                     String password=in.nextLine();
                     if(password.equals(rst.getString(2)))
                     {
-						new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                         System.out.println();
-						System.out.print("-------------------------------");
-						for(int i = 0; i < username.length(); i++)
-						{
-							System.out.print("-");
-						}
-						System.out.println();
                         System.out.println("Succefully Logged into Admin : "+username); 
-                        System.out.print("-------------------------------");
-						for(int i = 0; i < username.length(); i++)
-						{
-							System.out.print("-");
-						}
+                        System.out.println("-----------------------------------------");
                         System.out.println();
                         return true;
                     }
@@ -192,7 +158,38 @@ public class Admin
                 return false;
             }
 
-        }
+            /*if(val)
+            {
+                System.out.println();
+                System.out.println("Enter the Password for username : "+username);
+                String password=in.nextLine();
+                rst = stmt.executeQuery("select PASSWORD from Admins");
+                while(rst.next())
+		        {
+                        if(password.equals(rst.getString(1)))
+                        {
+                            System.out.println();
+                            System.out.println("Succefully Logged into Admin : "+username); 
+                            System.out.println("-----------------------------------------");
+                            System.out.println();
+                            return true;
+                        }
+                        else
+                        {
+                            System.out.println();
+                            System.out.println("Retry");
+                            System.out.println();
+                            return false;
+                        }
+                }
+            }
+            else
+            {
+                return false;
+            }*/
+            
+        } 
+    
         catch (SQLException ex)
         {
             // handle any errors
@@ -202,20 +199,21 @@ public class Admin
         }
         return false;
     }
+}
 
+class AdminQuestionInsertion
+{
     public void Insert(Statement stmt)
     {
-        Admin add = new Admin();
+        String ques;
         Scanner sc = new Scanner(System.in);
-        StringBuffer sb = new StringBuffer();
-        //StringBuffer option = new StringBuffer();
         ResultSet rstt = null;
         int n,i=0,choice,j;
         int count=0;
-        //String question;
+        String question;
         System.out.println();
         System.out.println("Enter The Question");
-        sb.append(sc.nextLine());
+        question = sc.nextLine();
 
         try
         {
@@ -231,42 +229,22 @@ public class Admin
                 System.out.println();
                 System.out.println("Enter The number of Options for the Question");
                 n = sc.nextInt();
-               // String[]option = new String[n];
+                String[]option = new String[n];
                 System.out.println();
                 System.out.println("Enter the Options for the Question");
 
-                for(i = 0 ; i < n ; i++ )
+                while(i < n)
                 {
                     j = i + 1;
                     System.out.println();
                     System.out.print("Option "+j+" : ");
-                    add.InsertQuestionIntoDataBase(stmt,count,sc);
-                }
-
-               /* while(i < n)
-                {
-                    j = i + 1;
-                    System.out.println();
-                    System.out.print("Option "+j+" : ");
-                    ques = sc.next();
-                    option[i] = ques;
+                    option[i]=sc.next();
                     i++;
                 }
                 for(i=0;i<n;i++)
                 {
                     stmt.executeUpdate("INSERT INTO ANSWERS (answers,q_id)"+" VALUES ('"+option[i]+"',"+count+")");
-                }*/
-
-               /* for(i=0;i<n;i++)
-                {
-                    j = i + 1;
-                    System.out.println();
-                    System.out.print("Option "+j+" : ");
-                    option.append(sc.next());
-                    stmt.executeUpdate("INSERT INTO ANSWERS (answers,q_id)"+" VALUES ('"+option+"',"+count+")");
-                    option.delete(0,10000);
-                }*/
-
+                }
             //}
 
             //Code for inserting Qestions into Questions Table
@@ -278,9 +256,9 @@ public class Admin
                 System.out.println(rstt.getString(1)+" : "+rstt.getString(2));
             }
             System.out.println();
-            System.out.println("Enter the correct Answer for the Question : ' "+sb+" ' from the above mentioned choices");
+            System.out.println("Enter the correct Answer for the Question : ' "+question+" ' from the above mentioned choices");
             choice = sc.nextInt();
-            stmt.executeUpdate("INSERT INTO QUESTIONS (QUESTION,ANS_ID)"+" VALUES ('"+sb+"',"+choice+")");
+            stmt.executeUpdate("INSERT INTO QUESTIONS (QUESTION,ANS_ID)"+" VALUES ('"+question+"',"+choice+")");
             System.out.println();
             System.out.println("Question inserted successfully!!");
             System.out.println("--------------------------------");
@@ -294,28 +272,40 @@ public class Admin
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-
-    sb.delete(0,10000);
-
     }
+}
 
-    public void InsertQuestionIntoDataBase(Statement stmt, int count, Scanner sc)
+
+/*class ViewAllQuestions
+{
+    public void view(Statement stmt)
     {
-        DataInputStream br = new DataInputStream(System.in);
+        ResultSet rst = null;
+        ResultSet rs1 = null;
+        ResultSet rs = null;
+        int counter=0;
         try
         {
-            String option;
-            try
+            rst = stmt.executeQuery("SELECT COUNT(Q_ID) FROM questions");
+            while(rst.next())
             {
-                option = br.readLine();
-                stmt.executeUpdate("INSERT INTO ANSWERS (answers,q_id)"+" VALUES ('"+option+"',"+count+")");
+                counter = Integer.parseInt(rst.getString(1));
             }
-            catch (IOException e)
+            System.out.println(counter);
+
+            for(int i = 1; i <= counter ; i++)
             {
-                System.out.println(e);
+                rs = stmt.executeQuery("SELECT * FROM QUESTIONS WHERE Q_ID="+i+"");
+                rs1 = stmt.executeQuery("SELECT ANSWERS FROM ANSWERS WHERE Q_ID="+i+"");
+                while (rs.next())
+                {
+                    System.out.println(rs.getString(1)+" : "+rs.getString(2));
+                }
+                while (rs1.next())
+                {
+                    System.out.println(rs.getString(1)+" ");
+                }   
             }
-            
-            
         }
         catch (SQLException ex)
         {
@@ -324,11 +314,12 @@ public class Admin
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-
-        
     }
+}*/
 
-    public void viewQuestions(Statement stmt)
+class ViewAllQuestions
+{
+    public void view(Statement stmt)
     {
         ResultSet rst = null;
         try
@@ -340,8 +331,6 @@ public class Admin
                 System.out.println(rst.getString(1)+" : "+rst.getString(2));
             }
             System.out.println();
-            System.out.println("--------------------------------------------------------------------------------------");
-            System.out.println();
         }
         catch (SQLException ex)
         {
@@ -351,7 +340,10 @@ public class Admin
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
+}
 
+class CreateNewAdmin
+{
     public void AdminCreate(Statement stmt)
     {
         ResultSet rs = null;
@@ -363,7 +355,7 @@ public class Admin
         try
         {
             System.out.println();
-            System.out.print("Enter the USERNAME_ID : ");
+            System.out.println("Enter the USERNAME_ID");
             username = sc.nextLine();
             rs = stmt.executeQuery("SELECT USER_ID FROM  USERS");
             while(rs.next())
@@ -371,13 +363,10 @@ public class Admin
                 if(username.equals(rs.getString(1)))
                 {
                     System.out.println();
-                    System.out.println("Enter the PASSWORD : ");
+                    System.out.println("Enter the PASSWORD");
                     password = sc.nextLine();
-                    System.out.println();
                     stmt.executeUpdate("INSERT INTO ADMINS VALUES ('"+username+"','"+password+"')");
-                    
                     System.out.println(username+" is succefully added");
-                    System.out.println("----------------------------------------------------------");
                     System.out.println();
                     val = false;
                 }
@@ -391,132 +380,9 @@ public class Admin
         catch (SQLException ex)
         {
             // handle any errors
-           /* System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());*/
-            System.out.println();
+            System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
-
-    public void ALterQuestions(Statement stmt)
-    {
-        ResultSet rst = null;
-        String alterQues;
-        Scanner sc = new Scanner(System.in);
-        int alterQID = -1 , typeCaste;
-        String ans;
-        Admin an = new Admin();
-        Boolean val = false;
-        DataInputStream br = new DataInputStream(System.in);
-        /* System.out.println("Enter The Altered Question");
-         System.out.println();
-        String alterQues = sc.nextLine();  
-        System.out.println();
-        
-        
-        try
-        {
-            rst = stmt.executeQuery("SELECT * FROM QUESTIONS");
-            System.out.println();
-            while (rst.next())
-            {
-                System.out.println(rst.getString(1)+" : "+rst.getString(2));
-            }
-            System.out.println();
-            System.out.println("--------------------------------------------------------------------------------------");
-            System.out.println();
-        }
-        catch (SQLException ex)
-        {
-            // handle any errors
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-        }*/
-        an.viewQuestions(stmt);
-
-        try
-        {
-
-            for(;;)
-            {
-                System.out.println();
-                System.out.print("Enter the Questions Number Which You Would Like To ALter : ");
-                alterQID = sc.nextInt();
-            
-                System.out.println();
-                rst = stmt.executeQuery("SELECT * FROM QUESTIONS");
-                while (rst.next())
-                {
-                    typeCaste = Integer.parseInt(rst.getString(1));
-                    if(typeCaste == alterQID)
-                    {
-                        System.out.println();
-                        System.out.println("Is the Question you would like to alter : ");
-                        System.out.println("        "+rst.getString(1)+" : "+rst.getString(2));
-                        System.out.println();
-                        System.out.print("Type Yes(y) or No(n) : ");
-                        ans = sc.next();
-                        if(ans.equals("y"))
-                        {
-                            val = true;
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-                if(val)
-                {
-                    break;
-                }
-                else
-                {
-                    continue;
-                }
-            }
-        }
-        catch (SQLException ex)
-        {
-            // handle any errors
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-        }
-        
-
-        System.out.println();
-       
-        try
-        {
-            if(val)
-            {
-                System.out.println("Enter The Altered Question");
-                System.out.println();
-                alterQues = br.readLine();
-                System.out.println();
-                stmt.executeUpdate("UPDATE QUESTIONS SET QUESTION = '"+alterQues+"' WHERE Q_ID = "+alterQID+" "); 
-                System.out.println();
-                System.out.println("Question Successfully Updated");
-                System.out.println("--------------------------------------------------------------------------");
-            }
-        }
-        catch (SQLException ex)
-        {
-            // handle any errors
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-        }
-        catch (IOException e)
-        {
-            System.out.println(e);
-        }
-        
-        
-    }  
-
 }
-
