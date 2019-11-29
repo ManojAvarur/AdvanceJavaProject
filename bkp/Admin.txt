@@ -1,3 +1,12 @@
+/*
+    ?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+    System.out.println("Connection--> "+con);
+    DatabaseMetaData rsmd=con.getMetaData();
+    System.out.println("database name="+rsmd.getDatabaseProductName());
+    System.out.println("Table name size="+rsmd.getMaxTableNameLength()); 
+
+*/
+
 import java.sql.*;
 import java.lang.*;
 import java.util.*;
@@ -16,7 +25,8 @@ public class Admin
         
         try
         {
-            //Class.forName("com.mysql.jdbc.Driver");
+            //Class.forName("com.mysql.jdbc.Driver"); This is not requirded, As this is preloaded in new versions of Mysql Driver
+            //Variables assigned with credetials for connection to Database ("ONLINE_QUIZ")
             String url = "jdbc:mysql://127.0.0.1/quizz_test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		    String user = "root";
 		    String pass = "";
@@ -174,7 +184,7 @@ public class Admin
                         System.out.println("Retry");
                         return false;
                     }
-                    
+                   // break;  
                 }
               
             }
@@ -199,15 +209,19 @@ public class Admin
         Admin add = new Admin();
         Scanner sc = new Scanner(System.in);
         StringBuffer sb = new StringBuffer();
+        //StringBuffer option = new StringBuffer();
         ResultSet rstt = null;
         int n,i=0,choice,j;
         int count=0;
+        //String question;
         System.out.println();
         System.out.println("Enter The Question");
         sb.append(sc.nextLine());
 
         try
         {
+            //Code related to Answers Table
+            //{
                 rstt = stmt.executeQuery("SELECT COUNT(Q_ID) FROM questions");
                 while(rstt.next())
                 {
@@ -218,6 +232,7 @@ public class Admin
                 System.out.println();
                 System.out.println("Enter The number of Options for the Question");
                 n = sc.nextInt();
+               // String[]option = new String[n];
                 System.out.println();
                 System.out.println("Enter the Options for the Question");
 
@@ -228,6 +243,35 @@ public class Admin
                     System.out.print("Option "+j+" : ");
                     add.InsertQuestionIntoDataBase(stmt,count,sc);
                 }
+
+               /* while(i < n)
+                {
+                    j = i + 1;
+                    System.out.println();
+                    System.out.print("Option "+j+" : ");
+                    ques = sc.next();
+                    option[i] = ques;
+                    i++;
+                }
+                for(i=0;i<n;i++)
+                {
+                    stmt.executeUpdate("INSERT INTO ANSWERS (answers,q_id)"+" VALUES ('"+option[i]+"',"+count+")");
+                }*/
+
+               /* for(i=0;i<n;i++)
+                {
+                    j = i + 1;
+                    System.out.println();
+                    System.out.print("Option "+j+" : ");
+                    option.append(sc.next());
+                    stmt.executeUpdate("INSERT INTO ANSWERS (answers,q_id)"+" VALUES ('"+option+"',"+count+")");
+                    option.delete(0,10000);
+                }*/
+
+            //}
+
+            //Code for inserting Qestions into Questions Table
+            //{
             System.out.println();   
             System.out.println("--------------------------------");
             System.out.println();   
@@ -345,11 +389,15 @@ public class Admin
             if(val)
             {
                 System.out.println("Entered User Name Does not exist in our database");
+               // return 0;
             }
         }
         catch (SQLException ex)
         {
             // handle any errors
+           /* System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());*/
             System.out.println();
         }
     }
@@ -364,6 +412,31 @@ public class Admin
         Admin an = new Admin();
         Boolean val = false;
         DataInputStream br = new DataInputStream(System.in);
+        /* System.out.println("Enter The Altered Question");
+         System.out.println();
+        String alterQues = sc.nextLine();  
+        System.out.println();
+        
+        
+        try
+        {
+            rst = stmt.executeQuery("SELECT * FROM QUESTIONS");
+            System.out.println();
+            while (rst.next())
+            {
+                System.out.println(rst.getString(1)+" : "+rst.getString(2));
+            }
+            System.out.println();
+            System.out.println("--------------------------------------------------------------------------------------");
+            System.out.println();
+        }
+        catch (SQLException ex)
+        {
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }*/
         an.viewQuestions(stmt);
 
         try
